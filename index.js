@@ -4,13 +4,10 @@ const cors = require("cors");
 const cheerio = require("cheerio");
 
 const app = express();
+app.use(cors());
 
 app.get("/", (req, res) => {
-  res.send("Express JS on Vercel");
-});
-
-app.get("/ping", (req, res) => {
-  res.send("pong 🏓");
+  res.send("Hey this is my API running 🥳");
 });
 
 const port = process.env.PORT || 8080;
