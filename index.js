@@ -1,7 +1,6 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
-const cheerio = require("cheerio");
 
 const app = express();
 app.use(cors());
@@ -22,10 +21,66 @@ app.get("/api/directlink", (req, res) => {
   const url = "https://faselhd-embed.scdn.to/video_player?uid=0&vid=" + videoId;
 
   axios.get(url).then((response) => {
-    res.send({
-      success: true,
-      data: response.data,
-    });
+    let script = response.data;
+    const regex = /\/g.....(.*?)\)/gm;
+    const matches = [...script.matchAll(regex)];
+    const code = matches[0]?.[1] || null;
+    const nativePlayer = false;
+
+    console.log(code, script);
+    let directLinks = "";
+
+    let page = "";
+    if (script && code) {
+      script = script.replace(/'/g, "").replace(/\+/g, "").replace(/\n/g, "");
+      const sc = script.split(".");
+      sc.forEach((elm) => {
+        const c_elm = Buffer.from(elm + "==", "base64").toString("ascii");
+        const matches = c_elm.match(/\d+/g);
+        if (matches) {
+          const nb = parseInt(matches[0], 10) + parseInt(code, 10);
+          page += String.fromCharCode(nb);
+        }
+      });
+
+      const regex = nativePlayer
+        ? /var\s*videoSrc\s*=\s*'(.+?)'/s
+        : /file":"(.+?)"/s;
+      const matches2 = page.match(regex);
+      directLinks = matches2?.[1] || "";
+    }
+
+    if (directLinks == "") {
+      res.send({
+        success: false,
+      });
+      return;
+    }
+    axios
+      .get(directLinks)
+      .then((response) => {
+        const qualityUrls = {};
+        const lines = response.data.split("\n");
+        lines.forEach((line) => {
+          if (line.startsWith("http")) {
+            const match = line.match(/(\d+)_([a-z]+)(\d+)b_playlist.m3u8/);
+            if (match) {
+              const quality = match[3] + "p";
+              qualityUrls[quality] = line;
+            }
+          }
+        });
+        res.send({
+          directLink: qualityUrls,
+          success: true,
+        });
+      })
+      .catch((error) => {
+        res.send({
+          success: false,
+          error: error.message,
+        });
+      });
   });
 });
 
