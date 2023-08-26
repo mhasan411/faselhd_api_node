@@ -22,15 +22,65 @@ app.get("/api/directlink", (req, res) => {
 
   axios.get(url).then((response) => {
     let script = response.data;
-    let regex = /\/g.....(.*?)\)/gm;
-    let matches = [...script.matchAll(regex)];
-    let code = matches[0]?.[1] || null;
-    let nativePlayer = false;
+    const regex = /\/g.....(.*?)\)/gm;
+    const matches = [...script.matchAll(regex)];
+    const code = matches[0]?.[1] || null;
+    const nativePlayer = false;
 
-    return res.send({
-      success: true,
-      directLinks: code,
-    });
+    console.log(code, script);
+    let directLinks = "";
+
+    let page = "";
+    if (script && code) {
+      script = script.replace(/'/g, "").replace(/\+/g, "").replace(/\n/g, "");
+      const sc = script.split(".");
+      sc.forEach((elm) => {
+        const c_elm = Buffer.from(elm + "==", "base64").toString("ascii");
+        const matches = c_elm.match(/\d+/g);
+        if (matches) {
+          const nb = parseInt(matches[0], 10) + parseInt(code, 10);
+          page += String.fromCharCode(nb);
+        }
+      });
+
+      const regex = nativePlayer
+        ? /var\s*videoSrc\s*=\s*'(.+?)'/s
+        : /file":"(.+?)"/s;
+      const matches2 = page.match(regex);
+      directLinks = matches2?.[1] || "";
+    }
+
+    if (directLinks == "") {
+      res.send({
+        success: false,
+      });
+      return;
+    }
+    axios
+      .get(directLinks)
+      .then((response) => {
+        const qualityUrls = {};
+        const lines = response.data.split("\n");
+        lines.forEach((line) => {
+          if (line.startsWith("http")) {
+            const match = line.match(/(\d+)_([a-z]+)(\d+)b_playlist.m3u8/);
+            if (match) {
+              const quality = match[3] + "p";
+              qualityUrls[quality] = line;
+            }
+          }
+        });
+        res.send({
+          directLink: qualityUrls,
+          success: true,
+        });
+      })
+      .catch((error) => {
+        res.send({
+          success: false,
+          error: error.message,
+        });
+      });
   });
 });
 
