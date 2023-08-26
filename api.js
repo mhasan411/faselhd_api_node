@@ -9,7 +9,7 @@ const app = express();
 // use cors
 app.use(cors());
 // server port
-const port = process.env.PORT || 3000;
+const port = 80;
 
 // start server
 app.listen(port, () =>
@@ -102,3 +102,5 @@ function adilboHTMLdecoder(code, script, nativePlayer) {
   }
   return "";
 }
+
+module.exports = app;
