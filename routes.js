@@ -1,7 +1,9 @@
-const express = require('express');
+const express = require("express");
 const { getDirectLink } = require("./apis/getDirectLink");
 const { search } = require("./apis/search");
 const { getMovies, getSeries, getEpisode } = require("./apis/getContent");
+const { discover } = require("./apis/discover");
+const { getSubCategories , allCategories } = require("./apis/category");
 const router = express.Router();
 
 router.get("/", (req, res) => {
@@ -123,5 +125,70 @@ router.get("/tv/:id/episode/:episodeNumber", async (req, res) => {
     });
   }
 });
+
+
+router.get("/discover/:category?", async (req, res) => {
+  try {
+    const category = req.params.category || "movies";
+    const page = req.query.page || 1;
+    const pageSize = req.query.pageSize || 10;
+
+    const result = await discover(category, page, pageSize);
+
+    if (!result.success) {
+      return res.status(404).json(result);
+    }
+
+    return res.json(result);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+router.get("/allCategories", async (req, res) => {
+  try {
+    const result = await allCategories();
+
+    if (!result.success) {
+      return res.status(404).json(result);
+    }
+
+    return res.json(result);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+router.get("/categories/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    if (!id) {
+      return res.status(400).json({ error: "id is required" });
+    }
+
+    const result = await getSubCategories(id);
+
+    if (!result.success) {
+      return res.status(404).json(result);
+    }
+
+    return res.json(result);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+
+
 
 module.exports = router;

@@ -1,9 +1,9 @@
 const axios = require("axios");
 const fs = require("fs");
 const { getDirectLink } = require("./getDirectLink");
+const token = fs.readFileSync("api.key", "utf8");
 
 const getContent = async (id) => {
-  const token = fs.readFileSync("api.key", "utf8");
   const response = await axios.get(
     `https://netcore.faselhd.pro/api/v1.0/Content/GetContent?ContentId=${id}`,
     {
@@ -81,5 +81,8 @@ const getEpisode = async (id, episodeNumber) => {
 
   return seriesData;
 };
+
+
+
 
 module.exports = { getMovies, getSeries, getEpisode };

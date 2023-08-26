@@ -1,14 +1,15 @@
 const axios = require("axios");
 const fs = require("fs");
 const token = fs.readFileSync("api.key", "utf8");
-const search = async (query, page = 1, pageSize = 15) => {
+
+const discover = async (categoryName = "movies", page = 1, pageSize = 10) => {
   const response = await axios.post(
-    "https://netcore.faselhd.pro/api/v1.0/Content/ContentSearch",
+    "https://netcore.faselhd.pro/api/v1.0/Content/GetContents",
     {
       data: {
         pageNumber: page,
         data: {
-          searchText: query,
+            subCategoryName: categoryName,
         },
         pageSize: pageSize,
       },
@@ -31,4 +32,4 @@ const search = async (query, page = 1, pageSize = 15) => {
   return data;
 };
 
-module.exports = { search };
+module.exports = { discover };
