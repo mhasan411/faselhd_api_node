@@ -10,6 +10,15 @@ app.get("/", (req, res) => {
   res.send("Hey this is my API running 🥳");
 });
 
+app.get("/api/directlink", (req, res) => {
+  let id = req.query.id;
+  if (!id) {
+    res.send({
+      error: "id is required",
+    });
+  }
+});
+
 const port = process.env.PORT || 8080;
 
 app.listen(port, (err, res) => {
