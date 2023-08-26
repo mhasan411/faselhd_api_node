@@ -1,7 +1,7 @@
 const axios = require("axios");
 const fs = require("fs");
 const { getDirectLink } = require("./getDirectLink");
-const token = fs.readFileSync("api.txt", "utf8");
+const token = fs.readFileSync("token.key", "utf8");
 
 const getContent = async (id) => {
   const response = await axios.get(
