@@ -1,6 +1,6 @@
 const axios = require("axios");
 const fs = require("fs");
-const token = fs.readFileSync("api.key", "utf8");
+const token = fs.readFileSync("api.txt", "utf8");
 const search = async (query, page = 1, pageSize = 15) => {
   const response = await axios.post(
     "https://netcore.faselhd.pro/api/v1.0/Content/ContentSearch",

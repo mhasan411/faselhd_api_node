@@ -1,6 +1,6 @@
 const axios = require("axios");
 const fs = require("fs");
-const token = fs.readFileSync("api.key", "utf8");
+const token = fs.readFileSync("api.txt", "utf8");
 
 const allCategories = async () => {
   const response = await axios.get(
@@ -28,7 +28,7 @@ const getSubCategories = async (id) => {
     "https://netcore.faselhd.pro/api/v1.0/Category/GetHomeCategories",
     {
       params: {
-        CategoryMainId: id
+        CategoryMainId: id,
       },
       headers: {
         Authorization: `Bearer ${token}`,

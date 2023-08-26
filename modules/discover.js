@@ -1,6 +1,6 @@
 const axios = require("axios");
 const fs = require("fs");
-const token = fs.readFileSync("api.key", "utf8");
+const token = fs.readFileSync("api.txt", "utf8");
 
 const discover = async (categoryName = "movies", page = 1, pageSize = 10) => {
   const response = await axios.post(
@@ -9,7 +9,7 @@ const discover = async (categoryName = "movies", page = 1, pageSize = 10) => {
       data: {
         pageNumber: page,
         data: {
-            subCategoryName: categoryName,
+          subCategoryName: categoryName,
         },
         pageSize: pageSize,
       },
