@@ -20,5 +20,3 @@ function adilboHTMLdecoder(code, script, nativePlayer) {
   }
   return "";
 }
-
-export default { adilboHTMLdecoder };

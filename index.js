@@ -12,79 +12,80 @@ app.get("/", (req, res) => {
   res.send("Hey this is my API running 🥳");
 });
 
-app.post("/api/directlink", (req, res) => {
-  const id = req.body.id;
+const getDirectLink = async (id) => {
+  const url = `https://faselhd-embed.scdn.to/video_player?uid=0&vid=${id}`;
+  const { data: script } = await axios.get(url);
 
-  if (!id) {
-    res.send({
-      error: "id is required",
-    });
+  const regex = /\/g.....(.*?)\)/gm;
+  const matches = [...script.matchAll(regex)];
+  const code = matches[0]?.[1] || null;
+
+  if (!script || !code) {
+    return { success: false };
   }
 
-  let videoId = id;
-  const url = "https://faselhd-embed.scdn.to/video_player?uid=0&vid=" + videoId;
+  let page = "";
+  const cleanedScript = script.replace(/['+\n]/g, "");
+  const scriptChunks = cleanedScript.split(".");
 
-  axios.get(url).then((response) => {
-    let script = response.data;
-    const regex = /\/g.....(.*?)\)/gm;
-    const matches = [...script.matchAll(regex)];
-    const code = matches[0]?.[1] || null;
-    const nativePlayer = false;
+  scriptChunks.forEach((elm) => {
+    const c_elm = Buffer.from(elm + "==", "base64").toString("ascii");
+    const matches = c_elm.match(/\d+/g);
 
-    let directLinks = "";
-
-    let page = "";
-    if (script && code) {
-      script = script.replace(/'/g, "").replace(/\+/g, "").replace(/\n/g, "");
-      const sc = script.split(".");
-      sc.forEach((elm) => {
-        const c_elm = Buffer.from(elm + "==", "base64").toString("ascii");
-        const matches = c_elm.match(/\d+/g);
-        if (matches) {
-          const nb = parseInt(matches[0], 10) + parseInt(code, 10);
-          page += String.fromCharCode(nb);
-        }
-      });
-
-      const regex = nativePlayer
-        ? /var\s*videoSrc\s*=\s*'(.+?)'/s
-        : /file":"(.+?)"/s;
-      const matches2 = page.match(regex);
-      directLinks = matches2?.[1] || "";
+    if (matches) {
+      const nb = parseInt(matches[0], 10) + parseInt(code, 10);
+      page += String.fromCharCode(nb);
     }
-
-    if (directLinks == "") {
-      res.send({
-        success: false,
-      });
-      return;
-    }
-    axios
-      .get(directLinks)
-      .then((response) => {
-        const qualityUrls = [];
-        const lines = response.data.split("\n");
-        lines.forEach((line) => {
-          if (line.startsWith("http")) {
-            const match = line.match(/(\d+)_([a-z]+)(\d+)b_playlist.m3u8/);
-            if (match) {
-              const quality = match[3] + "p";
-              qualityUrls.push({ label: quality, url: line });
-            }
-          }
-        });
-        res.send({
-          directLink: qualityUrls,
-          success: true,
-        });
-      })
-      .catch((error) => {
-        res.send({
-          success: false,
-          error: error.message,
-        });
-      });
   });
+
+  const regexPattern = /file":"(.+?)"/s;
+  const matches2 = page.match(regexPattern);
+  const directLinks = matches2?.[1] || "";
+
+  if (!directLinks) {
+    return { success: false };
+  }
+
+  const { data: directLinkData } = await axios.get(directLinks);
+  const qualityUrls = [];
+  const lines = directLinkData.split("\n");
+
+  lines.forEach((line) => {
+    if (line.startsWith("http")) {
+      const match = line.match(/(\d+)_([a-z]+)(\d+)b_playlist.m3u8/);
+      if (match) {
+        const quality = match[3] + "p";
+        qualityUrls.push({ label: quality, url: line });
+      }
+    }
+  });
+
+  return {
+    directLink: qualityUrls,
+    success: true,
+  };
+};
+
+app.all("/api/directlink", async (req, res) => {
+  try {
+    const id = req.method === 'POST' ? req.body.id : req.query.id;
+
+    if (!id) {
+      return res.status(400).json({ error: "id is required" });
+    }
+
+    const result = await getDirectLink(id);
+    if (!result.success) {
+      return res.status(404).json(result);
+    }
+
+    return res.json(result);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
 });
 
 const port = process.env.PORT || 8080;
