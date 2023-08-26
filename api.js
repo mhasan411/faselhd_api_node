@@ -9,14 +9,16 @@ const app = express();
 // use cors
 app.use(cors());
 // server port
-const port = 4000;
+const port = process.env.PORT || 8080;
 
-// start server
-app.listen(port, () =>
-  console.log(
-    `Server started on port ${port} and url = http://localhost:${port} `
-  )
-);
+app.listen(port, (err, res) => {
+  if (err) {
+    console.log(err);
+    return res.status(500).send(err.message);
+  } else {
+    console.log("[INFO] Server Running on http://localhost:" + port);
+  }
+});
 
 app.get("/", (req, res) => {
   res.send("Hey this is my API running 🥳");
