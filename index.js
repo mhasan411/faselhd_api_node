@@ -27,7 +27,11 @@ app.get("/api/directlink", (req, res) => {
     const code = matches[0]?.[1] || null;
     const nativePlayer = false;
 
-    console.log(code, script);
+    return res.send({
+      success: true,
+      directLinks: code,
+    });
+
     let directLinks = "";
 
     let page = "";
