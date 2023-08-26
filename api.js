@@ -9,7 +9,7 @@ const app = express();
 // use cors
 app.use(cors());
 // server port
-const port = 80;
+const port = process.env.PORT || 3000;
 
 // start server
 app.listen(port, () =>
