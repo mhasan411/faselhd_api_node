@@ -1,22 +1,16 @@
 const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
 const { getDirectLink } = require("./modules/getDirectLink");
 const { search } = require("./modules/search");
 const { getMovies, getSeries, getEpisode } = require("./modules/getContent");
 const { discover } = require("./modules/discover");
 const { getSubCategories, allCategories } = require("./modules/category");
+const router = express.Router();
 
-const app = express();
-app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-
-app.get("/", (req, res) => {
+router.get("/", (req, res) => {
   res.send("Hey this is my API running 🥳");
 });
 
-app.all("/directlink", async (req, res) => {
+router.all("/directlink", async (req, res) => {
   try {
     const id = req.method === "POST" ? req.body.id : req.query.id;
 
@@ -38,7 +32,7 @@ app.all("/directlink", async (req, res) => {
   }
 });
 
-app.all("/search", async (req, res) => {
+router.all("/search", async (req, res) => {
   try {
     const query = req.method === "POST" ? req.body.query : req.query.query;
     const page = req.method === "POST" ? req.body.page : req.query.page;
@@ -60,7 +54,7 @@ app.all("/search", async (req, res) => {
   }
 });
 
-app.get("/movie/:id", async (req, res) => {
+router.get("/movie/:id", async (req, res) => {
   try {
     const id = req.params.id;
 
@@ -83,7 +77,7 @@ app.get("/movie/:id", async (req, res) => {
   }
 });
 
-app.get("/tv/:id", async (req, res) => {
+router.get("/tv/:id", async (req, res) => {
   try {
     const id = req.params.id;
 
@@ -106,7 +100,7 @@ app.get("/tv/:id", async (req, res) => {
   }
 });
 
-app.get("/tv/:id/episode/:episodeNumber", async (req, res) => {
+router.get("/tv/:id/episode/:episodeNumber", async (req, res) => {
   try {
     const id = req.params.id;
     const episodeNumber = req.params.episodeNumber;
@@ -132,7 +126,7 @@ app.get("/tv/:id/episode/:episodeNumber", async (req, res) => {
   }
 });
 
-app.get("/discover/:category?", async (req, res) => {
+router.get("/discover/:category?", async (req, res) => {
   try {
     const category = req.params.category || "movies";
     const page = req.query.page || 1;
@@ -153,7 +147,7 @@ app.get("/discover/:category?", async (req, res) => {
   }
 });
 
-app.get("/allCategories", async (req, res) => {
+router.get("/allCategories", async (req, res) => {
   try {
     const result = await allCategories();
 
@@ -170,7 +164,7 @@ app.get("/allCategories", async (req, res) => {
   }
 });
 
-app.get("/categories/:id", async (req, res) => {
+router.get("/categories/:id", async (req, res) => {
   try {
     const id = req.params.id;
 
@@ -193,15 +187,4 @@ app.get("/categories/:id", async (req, res) => {
   }
 });
 
-const port = process.env.PORT || 8080;
-
-app.listen(port, (err, res) => {
-  if (err) {
-    console.log(err);
-    return res.status(500).send(err.message);
-  } else {
-    console.log("[INFO] Server Running on http://localhost:" + port);
-  }
-});
-
-module.exports = app;
+module.exports = router;
