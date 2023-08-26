@@ -1,16 +1,20 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
+const bodyParser = require("body-parser");
 
 const app = express();
 app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get("/", (req, res) => {
   res.send("Hey this is my API running 🥳");
 });
 
-app.get("/api/directlink", (req, res) => {
-  let id = req.query.id;
+app.post("/api/directlink", (req, res) => {
+  const id = req.body.id;
+
   if (!id) {
     res.send({
       error: "id is required",
@@ -27,7 +31,6 @@ app.get("/api/directlink", (req, res) => {
     const code = matches[0]?.[1] || null;
     const nativePlayer = false;
 
-    console.log(code, script);
     let directLinks = "";
 
     let page = "";
