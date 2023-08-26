@@ -22,10 +22,14 @@ app.get("/api/directlink", (req, res) => {
 
   axios.get(url).then((response) => {
     let script = response.data;
+    const regex = /\/g.....(.*?)\)/gm;
+    const matches = [...script.matchAll(regex)];
+    const code = matches[0]?.[1] || null;
+    const nativePlayer = false;
 
     return res.send({
       success: true,
-      directLinks: script,
+      directLinks: code,
     });
   });
 });
