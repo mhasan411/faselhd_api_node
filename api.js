@@ -9,7 +9,7 @@ const app = express();
 // use cors
 app.use(cors());
 // server port
-const port = 5000;
+const port = 4000;
 
 // start server
 app.listen(port, () =>
