@@ -1,11 +1,11 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const { getDirectLink } = require("../modules/getDirectLink");
-const { search } = require("../modules/search");
-const { getMovies, getSeries, getEpisode } = require("../modules/getContent");
-const { discover } = require("../modules/discover");
-const { getSubCategories, allCategories } = require("../modules/category");
+const { getDirectLink } = require("./modules/getDirectLink");
+const { search } = require("./modules/search");
+const { getMovies, getSeries, getEpisode } = require("./modules/getContent");
+const { discover } = require("./modules/discover");
+const { getSubCategories, allCategories } = require("./modules/category");
 
 const app = express();
 app.use(cors());
