@@ -56,31 +56,11 @@ app.get("/api/directlink", (req, res) => {
       });
       return;
     }
-    axios
-      .get(directLinks)
-      .then((response) => {
-        const qualityUrls = {};
-        const lines = response.data.split("\n");
-        lines.forEach((line) => {
-          if (line.startsWith("http")) {
-            const match = line.match(/(\d+)_([a-z]+)(\d+)b_playlist.m3u8/);
-            if (match) {
-              const quality = match[3] + "p";
-              qualityUrls[quality] = line;
-            }
-          }
-        });
-        res.send({
-          directLink: qualityUrls,
-          success: true,
-        });
-      })
-      .catch((error) => {
-        res.send({
-          success: false,
-          error: error.message,
-        });
-      });
+
+    res.send({
+      success: true,
+      directLinks: directLinks,
+    });
   });
 });
 
