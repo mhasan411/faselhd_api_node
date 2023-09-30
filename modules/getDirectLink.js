@@ -1,7 +1,7 @@
 const axios = require("axios");
 
 getDirectLink = async (id) => {
-  const url = `https://faselhd-embed.scdn.to/video_player?uid=0&vid=${id}`;
+  const url = `https://faselhd-embed.scdns.io/video_player?uid=0&vid=${id}`;
   const { data: script } = await axios.get(url);
 
   const regex = /\/g.....(.*?)\)/gm;
